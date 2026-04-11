@@ -49,7 +49,8 @@ struct list
     }
     void removeTask(int ind)
     {
-        }
+        listVec.erase(listVec.begin() + (ind - 1));
+    }
     void saveList()
     {
         ofstream listFile("list.txt", ios::app);
@@ -71,7 +72,8 @@ struct CLI
 
     void commandsList()
     {
-        cout << "1->Add Task" << "\n2->Delete Task" << "\n3->Mark Task" << "\n4->Edit Task" << "\n5->View Tasks\n";
+        cout << "1->Add Task" << "\n2->Delete Task" << "\n3->Mark Task" << "\n4->Edit Task" << "\n5->View Tasks"
+             << "\n6->Exit App" << endl;
     }
     short userChoice()
     {
@@ -99,7 +101,7 @@ struct CLI
         switch (commandNumber)
         {
         case 1:
-            cout << "please type somthing into your new task's contents or type or type \'!0\' to go back to the welcome panel\n";
+            cout << "please type something into your new task's contents or type \'!0\' to go back to the welcome panel\n";
 
             cout << "--> ";
             cin.ignore();
@@ -109,13 +111,29 @@ struct CLI
                 welcomePanel();
                 while (x.empty())
                 {
-                    cout << "please type somthing into your new task's contents\n-->";
+                    cout << "please type something into your new task's contents\n-->";
                     getline(cin, x);
                 }
             }
             mainList.addTask(mainList.newTask(x));
+            welcomePanel();
             break;
-
+        case 2:
+            int x;
+            cout << "please type the index of the task you want to remove \'!0\' to go back to the welcome panel\n-->";
+            cin.ignore();
+            while (!(cin >> x))
+            {
+                cout << "Invalid input! please choose a valid index\n-->";
+                cin.clear();
+                cin.ignore(1000, '\n');
+            }
+            mainList.removeTask(x);
+            welcomePanel();
+            break;
+        case 6:
+            exit;
+            break;
         default:
             break;
         }
