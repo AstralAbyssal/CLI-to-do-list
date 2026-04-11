@@ -47,7 +47,9 @@ struct list
     {
         listVec.push_back(temp);
     }
-
+    void removeTask(int ind)
+    {
+        }
     void saveList()
     {
         ofstream listFile("list.txt", ios::app);
@@ -63,10 +65,73 @@ struct list
     // void loadList() {}
 };
 
+struct CLI
+{
+    list mainList;
+
+    void commandsList()
+    {
+        cout << "1->Add Task" << "\n2->Delete Task" << "\n3->Mark Task" << "\n4->Edit Task" << "\n5->View Tasks\n";
+    }
+    short userChoice()
+    {
+        short x;
+        cout << "->";
+        while (!(cin >> x))
+        {
+            cout << "Invalid input! please choose a valid number from the list\n->";
+            cin.clear();
+            cin.ignore(1000, '\n');
+        }
+        return x;
+    }
+    void welcomePanel()
+    {
+        cout << "Welcome to CLI TO-DO\n";
+        cout << "Type the number of the command you want to make:-\n";
+        commandsList();
+        performCommand(userChoice());
+    }
+    void performCommand(short commandNumber)
+    {
+        string x;
+
+        switch (commandNumber)
+        {
+        case 1:
+            cout << "please type somthing into your new task's contents or type or type \'!0\' to go back to the welcome panel\n";
+
+            cout << "--> ";
+            cin.ignore();
+            getline(cin, x);
+            if (x == "!0")
+            {
+                welcomePanel();
+                while (x.empty())
+                {
+                    cout << "please type somthing into your new task's contents\n-->";
+                    getline(cin, x);
+                }
+            }
+            mainList.addTask(mainList.newTask(x));
+            break;
+
+        default:
+            break;
+        }
+    }
+    CLI()
+    {
+        welcomePanel();
+    }
+    ~CLI()
+    {
+        mainList.saveList();
+    }
+};
+
 int main()
 {
-    list l;
-    l.addTask(l.newTask("First Task"));
-    l.saveList();
+    CLI cli;
     return 0;
 }
