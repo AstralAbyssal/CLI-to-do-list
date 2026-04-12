@@ -2,6 +2,8 @@
 #include <vector>
 #include <string>
 #include <fstream>
+#include <bits/stdc++.h>
+#include <cctype>
 
 using namespace std;
 
@@ -10,22 +12,46 @@ struct task
 private:
     string contents{""};
     short completion{0};
-    string deadline{""};
+    string deadline{"DD/MM/YYYY"};
 
 public:
-    task(string conts = "", short comp = 0, string dl = "")
+    // constructor
+    task(string conts = "", short comp = 0, string dl = "DD/MM/YYYY")
     {
         contents = conts;
         completion = comp;
         deadline = dl;
     }
+
+    void viewTask()
+    {
+        cout << contents << " | " << completion << " | " << deadline;
+    }
+
+    // contents setter and getter
     string getContents()
     {
         return contents;
     }
+    void setContents(string conts = "")
+    {
+        contents = conts;
+    }
+
+    // completion mark setter and getter
+    void setCompletion(bool comp = 0)
+    {
+        completion = comp;
+    }
     short getCompletion()
     {
         return completion;
+    }
+
+    // deadline setter and getter
+    void setDeadLine(string dl)
+    {
+        deadline = dl;
     }
     string getDeadline()
     {
@@ -33,10 +59,44 @@ public:
     }
 };
 
-struct list
+task parse(string fileName, int lineIndex)
+{
+    ifstream readFile(fileName);
+    string lineString;
+
+    bool comp = 0;
+    string conts = "";
+
+    string readNumber = "";
+    int currentCharIndex = 0;
+
+    for (int i = 1; i <= lineIndex; i++) // search for the line
+    {
+        getline(readFile, lineString);
+        if (i == lineIndex)
+        {
+            while (lineString[currentCharIndex] != ':') // get number
+            {
+                readNumber += lineString[currentCharIndex];
+                currentCharIndex++;
+            }
+            for (int i = currentCharIndex + 1; i <= stoi(readNumber) + currentCharIndex; i++)
+            {
+                conts += lineString[i];
+                if (lineString[i + 1] == ':')
+                {
+                    comp = (lineString[i + 2] == '1');
+                }
+            }
+        }
+    }
+    task tempTask(conts, comp);
+    return tempTask;
+}
+
+struct taskList
 {
     vector<task> listVec;
-    // string serialize() {}
     task newTask(string conts = "", short comp = 0, string dl = "")
     {
         task nTask(conts, comp, dl);
@@ -51,35 +111,47 @@ struct list
     {
         listVec.erase(listVec.begin() + (ind - 1));
     }
+
+    string serialize(task t, int i)
+    {
+        string x;
+        string tempString = t.getContents();
+        x = to_string(tempString.size()) + ':' + tempString + ':' + to_string(t.getCompletion());
+        return x;
+    }
+
     void saveList()
     {
-        ofstream listFile("list.txt", ios::app);
+        ofstream listFile("list.txt");
 
         int vecSize = listVec.size();
         for (int i = 0; i < vecSize; i++)
         {
-            listFile << listVec[i].getContents() << endl;
+            listFile << serialize(listVec[i], i) << endl;
         }
     }
 
-    // string deserialize() {}
-    // void loadList() {}
+    // task deserialize(int lineIndex)
+    //{
+    //
+    // }
+    //  void loadList() {}
 };
 
 struct CLI
 {
-    list mainList;
+    taskList mainList;
 
     void commandsList()
     {
         cout << "1->Add Task" << "\n2->Delete Task" << "\n3->Mark Task" << "\n4->Edit Task" << "\n5->View Tasks"
-             << "\n6->Exit App" << endl;
+             << "\n\n0->Exit App" << endl;
     }
-    short userChoice()
+    int userChoice()
     {
-        short x;
+        int x;
         cout << "->";
-        while (!(cin >> x))
+        while (!(cin >> x) || x > 5 || x < 0)
         {
             cout << "Invalid input! please choose a valid number from the list\n->";
             cin.clear();
@@ -94,7 +166,7 @@ struct CLI
         commandsList();
         performCommand(userChoice());
     }
-    void performCommand(short commandNumber)
+    void performCommand(int commandNumber)
     {
         string x;
 
@@ -131,7 +203,12 @@ struct CLI
             mainList.removeTask(x);
             welcomePanel();
             break;
-        case 6:
+        case 5:
+            cout << "dumbahh";
+            welcomePanel();
+
+            break;
+        case 0:
             exit;
             break;
         default:
@@ -150,6 +227,7 @@ struct CLI
 
 int main()
 {
-    CLI cli;
+    // CLI cli;
+    parse("list.txt", 4).viewTask();
     return 0;
 }
