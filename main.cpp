@@ -5,6 +5,9 @@
 
 using namespace std;
 
+ofstream writeFile("list.txt", ios::app);
+ifstream readFile("list.txt");
+
 struct task
 {
 private:
@@ -69,92 +72,97 @@ int getNumberOfLines(string fileName)
     return numberOfLines;
 }
 
-task parse(string fileName, int lineIndex)
-{
-    ifstream readFile(fileName);
-    string lineString;
-
-    bool comp = 0;
-    string conts = "";
-
-    string readNumber = "";
-    int currentCharIndex = 0;
-    int totalNumberOfLines = getNumberOfLines(fileName);
-    if (lineIndex > totalNumberOfLines)
-    {
-        lineIndex = getNumberOfLines(fileName);
-    }
-    for (int i = 1; i <= lineIndex; i++) // search for the line
-    {
-        getline(readFile, lineString);
-        if (i == lineIndex)
-        {
-            while (lineString[currentCharIndex] != ':') // get number
-            {
-                readNumber += lineString[currentCharIndex];
-                currentCharIndex++;
-            }
-            for (int i = currentCharIndex + 1; i <= stoi(readNumber) + currentCharIndex; i++)
-            {
-                conts += lineString[i];
-                if (lineString[i + 1] == ':')
-                {
-                    comp = (lineString[i + 2] == '1');
-                }
-            }
-        }
-    }
-    task tempTask(conts, comp);
-    return tempTask;
-}
-
 struct taskList
 {
     vector<task> listVec;
-    task newTask(string conts = "", short comp = 0, string dl = "")
-    {
-        task nTask(conts, comp, dl);
-        return nTask;
-    }
 
-    void addTask(task temp)
+    void addTask(string conts = "", int comp = 0, string dl = "DD/MM/YYYY")
     {
+        task temp(conts, comp, dl);
         listVec.push_back(temp);
     }
     void removeTask(int ind)
     {
         listVec.erase(listVec.begin() + (ind - 1));
     }
+};
 
-    string serialize(task t, int i)
+struct CLI
+{
+    taskList mainList;
+
+    bool checkSaveFile(string fileName)
     {
-        string x;
-        string tempString = t.getContents();
-        x = to_string(tempString.size()) + ':' + tempString + ':' + to_string(t.getCompletion());
-        return x;
+        ifstream readFile;
+        readFile.open(fileName);
+        string temp;
+        while (getline(readFile, temp))
+            ;
+        return !(temp.empty());
     }
 
-    void saveList()
+    string serialize(task tempTask, int i)
     {
-        ofstream listFile("list.txt");
-
-        int vecSize = listVec.size();
-        for (int i = 0; i < vecSize; i++)
-        {
-            listFile << serialize(listVec[i], i) << endl;
-        }
+        string x;
+        string tempString = tempTask.getContents();
+        x = to_string(tempString.size()) + ':' + tempString + ':' + to_string(tempTask.getCompletion());
+        return x;
     }
 
     // task deserialize(int lineIndex)
     //{
     //
     // }
-    //  void loadList() {}
-};
 
-struct CLI
-{
-    taskList mainList;
+    //  taskList loadList() {}
+
+    void saveList(taskList list)
+    {
+        int vecSize = list.listVec.size();
+        for (int i = 0; i < vecSize; i++)
+        {
+            writeFile << serialize(list.listVec[i], i) << endl;
+        }
+    }
+
+    task parse(string fileName, int lineIndex)
+    {
+        ifstream readFile(fileName);
+        string lineString;
+
+        bool comp = 0;
+        string conts = "";
+
+        string readNumber = "";
+        int currentCharIndex = 0;
+        int totalNumberOfLines = getNumberOfLines(fileName);
+        if (lineIndex > totalNumberOfLines)
+        {
+            lineIndex = getNumberOfLines(fileName);
+        }
+        for (int i = 1; i <= lineIndex; i++) // search for the line
+        {
+            getline(readFile, lineString);
+            if (i == lineIndex)
+            {
+                while (lineString[currentCharIndex] != ':') // get number
+                {
+                    readNumber += lineString[currentCharIndex];
+                    currentCharIndex++;
+                }
+                for (int i = currentCharIndex + 1; i <= stoi(readNumber) + currentCharIndex; i++)
+                {
+                    conts += lineString[i];
+                    if (lineString[i + 1] == ':')
+                    {
+                        comp = (lineString[i + 2] == '1');
+                    }
+                }
+            }
+        }
+        task tempTask(conts, comp);
+        return tempTask;
+    }
 
     void commandsList()
     {
@@ -201,7 +209,7 @@ struct CLI
                     getline(cin, x);
                 }
             }
-            mainList.addTask(mainList.newTask(x));
+            mainList.addTask(x);
             welcomePanel();
             break;
         case 2:
@@ -231,17 +239,19 @@ struct CLI
     }
     CLI()
     {
+        // mainList = loadList();
+        checkSaveFile("list.txt");
         welcomePanel();
     }
     ~CLI()
     {
-        mainList.saveList();
+        saveList(mainList);
     }
 };
 
 int main()
 {
-    // CLI cli;
-    parse("list.txt", 10).viewTask();
+    CLI cli;
+
     return 0;
 }
