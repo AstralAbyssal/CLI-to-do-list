@@ -2,8 +2,6 @@
 #include <vector>
 #include <string>
 #include <fstream>
-#include <bits/stdc++.h>
-#include <cctype>
 
 using namespace std;
 
@@ -59,6 +57,18 @@ public:
     }
 };
 
+int getNumberOfLines(string fileName)
+{
+    ifstream readFile(fileName);
+    int numberOfLines = 0;
+    string temp;
+    while (getline(readFile, temp))
+    {
+        numberOfLines++;
+    }
+    return numberOfLines;
+}
+
 task parse(string fileName, int lineIndex)
 {
     ifstream readFile(fileName);
@@ -69,7 +79,11 @@ task parse(string fileName, int lineIndex)
 
     string readNumber = "";
     int currentCharIndex = 0;
-
+    int totalNumberOfLines = getNumberOfLines(fileName);
+    if (lineIndex > totalNumberOfLines)
+    {
+        lineIndex = getNumberOfLines(fileName);
+    }
     for (int i = 1; i <= lineIndex; i++) // search for the line
     {
         getline(readFile, lineString);
@@ -228,6 +242,6 @@ struct CLI
 int main()
 {
     // CLI cli;
-    parse("list.txt", 4).viewTask();
+    parse("list.txt", 10).viewTask();
     return 0;
 }
