@@ -58,6 +58,20 @@ int charToInt(char x)
     }
 }
 
+int stringToInt(string x)
+{
+    char y;
+    for (int i = 0; i < x.size(); i++)
+    {
+        if (charToInt(x[i]) == -1)
+        {
+            return -1;
+            exit;
+        }
+    }
+    return stoi(x);
+}
+
 int checkUserInput(string errorMessage = "ERROR!")
 {
     string userInput;
@@ -254,7 +268,7 @@ struct CLI
     void performCommand(int commandNumber)
     {
         string addedTaskContents;
-        int deletedTaskIndex;
+        int chosenIndex;
 
         switch (commandNumber)
         {
@@ -275,7 +289,7 @@ struct CLI
         case 2:
             cout << "please type the index of the task you want to remove \'!0\' to go back to the welcome panel\n-->";
             cin.ignore();
-            while (!(cin >> deletedTaskIndex))
+            while (!(cin >> chosenIndex))
             {
                 cout << "Invalid input! please choose a valid index\n-->";
                 cin.clear();
