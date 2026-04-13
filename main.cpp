@@ -8,6 +8,78 @@ using namespace std;
 ofstream writeFile("list.txt", ios::app);
 ifstream readFile("list.txt");
 
+int charToInt(char x)
+{
+    switch (x)
+    {
+    case '0':
+        return 0;
+        break;
+
+    case '1':
+        return 1;
+        break;
+
+    case '2':
+        return 2;
+        break;
+
+    case '3':
+        return 3;
+        break;
+
+    case '4':
+        return 4;
+        break;
+
+    case '5':
+        return 5;
+        break;
+
+    case '6':
+        return 6;
+        break;
+
+    case '7':
+        return 7;
+        break;
+
+    case '8':
+        return 8;
+        break;
+
+    case '9':
+        return 9;
+        break;
+
+    default:
+        return -1;
+        break;
+    }
+}
+
+int checkUserInput(string errorMessage = "ERROR!")
+{
+    string userInput;
+
+    while (getline(cin, userInput, '\n') && (userInput.empty() || charToInt(userInput[0]) > 5 || charToInt(userInput[0]) == -1))
+    {
+        cout << errorMessage;
+    }
+    return charToInt(userInput[0]);
+}
+
+string getValidString(string errorMessage = "ERROR!")
+{
+    string userInput;
+
+    while (getline(cin, userInput, '\n') && userInput.empty())
+    {
+        cout << errorMessage;
+    }
+    return userInput;
+}
+
 struct task
 {
 private:
@@ -169,70 +241,46 @@ struct CLI
         cout << "1->Add Task" << "\n2->Delete Task" << "\n3->Mark Task" << "\n4->Edit Task" << "\n5->View Tasks"
              << "\n\n0->Exit App" << endl;
     }
-    int userChoice()
-    {
-        int x;
-        cout << "->";
-        while (!(cin >> x) || x > 5 || x < 0)
-        {
-            cout << "Invalid input! please choose a valid number from the list\n->";
-            cin.clear();
-            cin.ignore(1000, '\n');
-        }
-        return x;
-    }
+
     void welcomePanel()
     {
         cout << "Welcome to CLI TO-DO\n";
         cout << "Type the number of the command you want to make:-\n";
         commandsList();
-        performCommand(userChoice());
+        cout << "-->";
+        int commandNumber = checkUserInput("Invalid input! please choose a valid number from the list\n->");
+        performCommand(commandNumber);
     }
     void performCommand(int commandNumber)
     {
-        string x;
+        string addedTaskContents;
+        int deletedTaskIndex;
 
         switch (commandNumber)
         {
+        case 0:
+            exit;
+            break;
         case 1:
-            cout << "please type something into your new task's contents or type \'!0\' to go back to the welcome panel\n";
-
-            cout << "--> ";
-            cin.ignore();
-            getline(cin, x);
-            if (x == "!0")
+            cout << "please type something into your new task's contents or type \'!0\' to go back to the welcome panel\n-->";
+            addedTaskContents = getValidString("contents cant be empty!\n-->");
+            if (addedTaskContents == "!0")
             {
                 welcomePanel();
-                while (x.empty())
-                {
-                    cout << "please type something into your new task's contents\n-->";
-                    getline(cin, x);
-                }
+                break;
             }
-            mainList.addTask(x);
+            mainList.addTask(addedTaskContents);
             welcomePanel();
             break;
         case 2:
-            int x;
             cout << "please type the index of the task you want to remove \'!0\' to go back to the welcome panel\n-->";
             cin.ignore();
-            while (!(cin >> x))
+            while (!(cin >> deletedTaskIndex))
             {
                 cout << "Invalid input! please choose a valid index\n-->";
                 cin.clear();
                 cin.ignore(1000, '\n');
             }
-            mainList.removeTask(x);
-            welcomePanel();
-            break;
-        case 5:
-            cout << "dumbahh";
-            welcomePanel();
-
-            break;
-        case 0:
-            exit;
-            break;
         default:
             break;
         }
@@ -252,6 +300,5 @@ struct CLI
 int main()
 {
     CLI cli;
-
     return 0;
 }
