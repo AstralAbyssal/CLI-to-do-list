@@ -175,6 +175,18 @@ struct taskList
     {
         listVec.erase(listVec.begin() + (ind - 1));
     }
+    void markTask(int index, bool setCompletionMark)
+    {
+        listVec[index].setCompletion(setCompletionMark);
+    }
+    void viewList()
+    {
+        for (int i = 0; i < listVec.size(); i++)
+        {
+            listVec[i].viewTask();
+            cout << endl;
+        }
+    }
 };
 
 struct CLI
@@ -279,6 +291,8 @@ struct CLI
     {
         string addedTaskContents;
         int chosenIndex;
+        bool comp;
+        string x;
 
         switch (commandNumber)
         {
@@ -298,7 +312,7 @@ struct CLI
             break;
         case 2:
             cout << "please type the index of the task you want to remove \'0\' to go back to the welcome panel\n-->";
-            chosenIndex = stringToInt(getValidString("contents cant be empty!\n-->"));
+            chosenIndex = stringToInt(getValidString("index cant be empty!\n-->"));
             if (chosenIndex == 0)
             {
                 welcomePanel();
@@ -313,13 +327,52 @@ struct CLI
             mainList.removeTask(chosenIndex);
             welcomePanel();
             break;
+        case 3:
+            cout << "please type the index of the task you want to mark \'0\' to go back to the welcome panel\n-->";
+            chosenIndex = stringToInt(getValidString("index cant be empty!\n-->"));
+            cout << "Set the completion to-> ";
+            cin >> comp;
+            mainList.listVec[chosenIndex - 1].setCompletion(comp);
+            cin.ignore(1000, '\n');
+            welcomePanel();
+            break;
+        case 4:
+            cout << "please type the index of the task you want to edit \'0\' to go back to the welcome panel\n-->";
+            chosenIndex = stringToInt(getValidString("index cant be empty!\n-->"));
+            if (chosenIndex == 0)
+            {
+                welcomePanel();
+                break;
+            }
+
+            cout << "please type something into your edited task's contents or type \'!0\' to go back to the welcome panel\n-->";
+            addedTaskContents = getValidString("contents cant be empty!\n-->");
+            if (addedTaskContents == "!0")
+            {
+                welcomePanel();
+                break;
+            }
+            mainList.listVec[chosenIndex - 1].setContents(addedTaskContents);
+            welcomePanel();
+            break;
+        case 5:
+            cout << "-----------------------------" << endl;
+            mainList.viewList();
+            cout << "-----------------------------" << endl;
+
+            cout << endl
+                 << "press enter to go back to welcome panel";
+            getline(cin, x);
+            welcomePanel();
+            break;
         default:
+            cout << "Unknown Error!\n";
+            welcomePanel();
             break;
         }
     }
     CLI()
     {
-
         mainList = loadList(checkSaveFile("list.txt"));
         welcomePanel();
     }
