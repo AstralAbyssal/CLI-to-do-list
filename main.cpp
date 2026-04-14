@@ -304,9 +304,9 @@ struct CLI
                 welcomePanel();
                 break;
             }
-            if (chosenIndex > getNumberOfLines("list.txt"))
+            if (chosenIndex > mainList.listVec.size())
             {
-                mainList.removeTask(getNumberOfLines("list.txt"));
+                mainList.removeTask(mainList.listVec.size());
                 welcomePanel();
                 break;
             }
@@ -321,7 +321,6 @@ struct CLI
     {
 
         mainList = loadList(checkSaveFile("list.txt"));
-        cout << mainList.listVec[0].getContents();
         welcomePanel();
     }
     ~CLI()
