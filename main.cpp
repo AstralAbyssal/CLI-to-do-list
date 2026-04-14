@@ -167,6 +167,10 @@ struct taskList
         task temp(conts, comp, dl);
         listVec.push_back(temp);
     }
+    void addTask(task tempTask)
+    {
+        listVec.push_back(tempTask);
+    }
     void removeTask(int ind)
     {
         listVec.erase(listVec.begin() + (ind - 1));
@@ -182,12 +186,11 @@ struct CLI
         ifstream readFile;
         readFile.open(fileName);
         string temp;
-        while (getline(readFile, temp))
-            ;
+        getline(readFile, temp);
         return !(temp.empty());
     }
 
-    string serialize(task tempTask, int i)
+    string serialize(task tempTask)
     {
         string x;
         string tempString = tempTask.getContents();
@@ -195,19 +198,26 @@ struct CLI
         return x;
     }
 
-    // task deserialize(int lineIndex)
-    //{
-    //
-    // }
-
-    //  taskList loadList() {}
+    taskList loadList(bool listExists)
+    {
+        taskList tempList;
+        if (listExists)
+        {
+            for (int i = 1; i <= getNumberOfLines("list.txt"); i++)
+            {
+                tempList.addTask(parse("list.txt", i));
+            }
+        }
+        return tempList;
+    }
 
     void saveList(taskList list)
     {
+        ofstream wrf("list.txt");
         int vecSize = list.listVec.size();
         for (int i = 0; i < vecSize; i++)
         {
-            writeFile << serialize(list.listVec[i], i) << endl;
+            wrf << serialize(list.listVec[i]) << endl;
         }
     }
 
@@ -287,22 +297,31 @@ struct CLI
             welcomePanel();
             break;
         case 2:
-            cout << "please type the index of the task you want to remove \'!0\' to go back to the welcome panel\n-->";
-            cin.ignore();
-            while (!(cin >> chosenIndex))
+            cout << "please type the index of the task you want to remove \'0\' to go back to the welcome panel\n-->";
+            chosenIndex = stringToInt(getValidString("contents cant be empty!\n-->"));
+            if (chosenIndex == 0)
             {
-                cout << "Invalid input! please choose a valid index\n-->";
-                cin.clear();
-                cin.ignore(1000, '\n');
+                welcomePanel();
+                break;
             }
+            if (chosenIndex > getNumberOfLines("list.txt"))
+            {
+                mainList.removeTask(getNumberOfLines("list.txt"));
+                welcomePanel();
+                break;
+            }
+            mainList.removeTask(chosenIndex);
+            welcomePanel();
+            break;
         default:
             break;
         }
     }
     CLI()
     {
-        // mainList = loadList();
-        checkSaveFile("list.txt");
+
+        mainList = loadList(checkSaveFile("list.txt"));
+        cout << mainList.listVec[0].getContents();
         welcomePanel();
     }
     ~CLI()
