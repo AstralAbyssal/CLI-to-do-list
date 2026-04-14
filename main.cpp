@@ -76,7 +76,7 @@ int checkUserInput(string errorMessage = "ERROR!")
 {
     string userInput;
 
-    while (getline(cin, userInput, '\n') && (userInput.empty() || charToInt(userInput[0]) > 5 || charToInt(userInput[0]) == -1))
+    while (getline(cin, userInput, '\n') && (userInput.empty() || charToInt(userInput[0]) > 6 || charToInt(userInput[0]) == -1))
     {
         cout << errorMessage;
     }
@@ -275,7 +275,7 @@ struct CLI
     void commandsList()
     {
         cout << "1->Add Task" << "\n2->Delete Task" << "\n3->Mark Task" << "\n4->Edit Task" << "\n5->View Tasks"
-             << "\n\n0->Exit App" << endl;
+             << "\n6->Clear List" << "\n\n0->Exit App" << endl;
     }
 
     void welcomePanel()
@@ -293,6 +293,7 @@ struct CLI
         int chosenIndex;
         bool comp;
         string x;
+        char confirm;
 
         switch (commandNumber)
         {
@@ -356,13 +357,28 @@ struct CLI
             welcomePanel();
             break;
         case 5:
+
             cout << "-----------------------------" << endl;
+            if (mainList.listVec.size() == 0)
+            {
+                cout << "Nothing to show! list is empty" << endl;
+            }
             mainList.viewList();
             cout << "-----------------------------" << endl;
 
             cout << endl
                  << "press enter to go back to welcome panel";
             getline(cin, x);
+            welcomePanel();
+            break;
+        case 6:
+            cout << "are you sure you want to clear the list? press y/n for confirmation ->";
+            cin >> confirm;
+            if (confirm == 'y' || confirm == 'Y')
+            {
+                mainList.listVec.clear();
+            }
+            cin.ignore(1000, '\n');
             welcomePanel();
             break;
         default:
