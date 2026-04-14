@@ -6,9 +6,6 @@
 
 using namespace std;
 
-ofstream writeFile("list.txt", ios::app);
-ifstream readFile("list.txt");
-
 int main()
 {
     CLI cli;
