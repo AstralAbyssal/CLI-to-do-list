@@ -9,5 +9,8 @@ using namespace std;
 int main()
 {
     CLI cli;
+    cli.mainList.viewList();
+    cli.welcomePanel();
+
     return 0;
 }

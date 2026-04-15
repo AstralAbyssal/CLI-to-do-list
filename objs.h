@@ -93,11 +93,17 @@ struct taskList
     }
     void viewList()
     {
+        cout << "-----------------------------" << endl;
+        if (listVec.size() == 0)
+        {
+            cout << "Nothing to show! list is empty" << endl;
+        }
         for (int i = 0; i < listVec.size(); i++)
         {
             listVec[i].viewTask();
             cout << endl;
         }
+        cout << "-----------------------------" << endl;
     }
 };
 
@@ -269,14 +275,7 @@ struct CLI
             welcomePanel();
             break;
         case 5:
-
-            cout << "-----------------------------" << endl;
-            if (mainList.listVec.size() == 0)
-            {
-                cout << "Nothing to show! list is empty" << endl;
-            }
             mainList.viewList();
-            cout << "-----------------------------" << endl;
 
             cout << endl
                  << "press enter to go back to welcome panel";
@@ -302,7 +301,6 @@ struct CLI
     CLI()
     {
         mainList = loadList(checkSaveFile("list.txt"));
-        welcomePanel();
     }
     ~CLI()
     {
