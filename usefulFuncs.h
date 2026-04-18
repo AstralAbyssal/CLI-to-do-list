@@ -1,90 +1,67 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <stdexcept>
 using namespace std;
 
-int charToInt(char x)
+string getValidString()
 {
-    switch (x)
+    string input;
+    while (getline(cin, input))
     {
-    case '0':
-        return 0;
-        break;
-
-    case '1':
-        return 1;
-        break;
-
-    case '2':
-        return 2;
-        break;
-
-    case '3':
-        return 3;
-        break;
-
-    case '4':
-        return 4;
-        break;
-
-    case '5':
-        return 5;
-        break;
-
-    case '6':
-        return 6;
-        break;
-
-    case '7':
-        return 7;
-        break;
-
-    case '8':
-        return 8;
-        break;
-
-    case '9':
-        return 9;
-        break;
-
-    default:
-        return -1;
-        break;
-    }
-}
-
-int stringToInt(string x)
-{
-    char y;
-    for (int i = 0; i < x.size(); i++)
-    {
-        if (charToInt(x[i]) == -1)
+        try
         {
-            return -1;
-            exit;
+            if (input.empty())
+            {
+                throw invalid_argument("input can't be empty");
+                cin.clear();
+                cin.ignore(1000, '\n');
+            }
+            return input;
+        }
+        catch (invalid_argument)
+        {
+            cout << "invalid input, please type a number\n";
         }
     }
-    return stoi(x);
+    return input;
 }
 
-int checkUserInput(string errorMessage = "ERROR!")
+int getValidInt()
 {
-    string userInput;
-
-    while (getline(cin, userInput, '\n') && (userInput.empty() || charToInt(userInput[0]) > 6 || charToInt(userInput[0]) == -1))
+    string input;
+    while (getline(cin, input))
     {
-        cout << errorMessage;
+        try
+        {
+            return stoi(input);
+            if (input.empty())
+            {
+                throw invalid_argument("input can't be empty");
+                cin.clear();
+                cin.ignore(1000, '\n');
+            }
+        }
+        catch (invalid_argument)
+        {
+            cout << "invalid input, please type a number\n";
+        }
+        catch (out_of_range)
+        {
+            cout << "invalid input, please type a feasable number\n";
+        }
     }
-    return charToInt(userInput[0]);
+    return stoi(input);
 }
 
-string getValidString(string errorMessage = "ERROR!")
+bool checkIntBounds(int input, int upperBound, int lowerBound = 0)
 {
-    string userInput;
-
-    while (getline(cin, userInput, '\n') && userInput.empty())
+    if (input > upperBound || input < lowerBound)
     {
-        cout << errorMessage;
+        return 0;
     }
-    return userInput;
+    else
+    {
+        return 1;
+    }
 }
