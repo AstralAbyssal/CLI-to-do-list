@@ -67,13 +67,13 @@ bool checkIntBounds(int input, int upperBound, int lowerBound = 0)
     }
 }
 
-vector<string> splitString(string temp)
+vector<string> splitString(string tempString, char splitChar)
 {
     vector<string> tempVector;
     string tempContent = "";
-    for (char x : temp)
+    for (char x : tempString)
     {
-        if (x != ':')
+        if (x != splitChar)
         {
             tempContent += x;
         }
