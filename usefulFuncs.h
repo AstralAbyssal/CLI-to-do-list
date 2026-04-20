@@ -83,5 +83,7 @@ vector<string> splitString(string tempString, char splitChar)
             tempContent = "";
         }
     }
+    tempVector.push_back(tempContent);
+
     return tempVector;
 }
