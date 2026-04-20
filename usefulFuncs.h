@@ -1,7 +1,8 @@
 #include <iostream>
-#include <vector>
 #include <string>
 #include <stdexcept>
+#include <vector>
+
 using namespace std;
 
 string getValidString()
@@ -21,7 +22,7 @@ string getValidString()
         }
         catch (invalid_argument)
         {
-            cout << "invalid input, please type a number\n";
+            cout << "input can't be empty\n";
         }
     }
     return input;
@@ -64,4 +65,23 @@ bool checkIntBounds(int input, int upperBound, int lowerBound = 0)
     {
         return 1;
     }
+}
+
+vector<string> splitString(string temp)
+{
+    vector<string> tempVector;
+    string tempContent = "";
+    for (char x : temp)
+    {
+        if (x != ':')
+        {
+            tempContent += x;
+        }
+        else
+        {
+            tempVector.push_back(tempContent);
+            tempContent = "";
+        }
+    }
+    return tempVector;
 }
