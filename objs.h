@@ -6,14 +6,25 @@
 
 using namespace std;
 
+int getNumberOfLines(string fileName)
+{
+    ifstream readFile(fileName);
+    int numberOfLines = 0;
+    string temp;
+    while (getline(readFile, temp))
+    {
+        numberOfLines++;
+    }
+    return numberOfLines;
+}
+
 struct task
 {
-private:
+public:
     string contents{""};
-    short completion{0};
+    bool completion{0};
     string deadline{"DD/MM/YYYY"};
 
-public:
     // constructor
     task(string conts = "", short comp = 0, string dl = "DD/MM/YYYY")
     {
@@ -27,283 +38,185 @@ public:
         cout << contents << " | " << completion << " | " << deadline;
     }
 
-    // contents setter and getter
-    string getContents()
-    {
-        return contents;
-    }
     void setContents(string conts = "")
     {
         contents = conts;
     }
-
-    // completion mark setter and getter
-    void setCompletion(bool comp = 0)
-    {
-        completion = comp;
-    }
-    short getCompletion()
-    {
-        return completion;
-    }
-
-    // deadline setter and getter
     void setDeadLine(string dl)
     {
         deadline = dl;
     }
-    string getDeadline()
+    void setCompletion(bool comp = 0)
     {
-        return deadline;
+        completion = comp;
+    }
+
+    void toggleCompletion()
+    {
+        completion = !completion;
+    }
+
+    string serialize()
+    {
+        string serializedTask;
+        serializedTask = to_string(contents.size()) + ':' + contents + ':' + to_string(completion);
+        return serializedTask;
     }
 };
 
-int getNumberOfLines(string fileName)
-{
-    ifstream readFile(fileName);
-    int numberOfLines = 0;
-    string temp;
-    while (getline(readFile, temp))
-    {
-        numberOfLines++;
-    }
-    return numberOfLines;
-}
-
 struct taskList
 {
+    string listName;
+    fstream listFile;
+    string listFileName;
     vector<task> listVec;
-
-    void addTask(string conts = "", int comp = 0, string dl = "DD/MM/YYYY")
+    // constructor
+    taskList(string name)
     {
-        task temp(conts, comp, dl);
+        listName = name;
+        listFileName = "AppData/" + listName + ".txt";
+        loadList();
+    }
+
+    void addTask()
+    {
+        task temp;
+        cout << "please type the contents of the task you want to add -> ";
+        temp.contents = getValidString();
+        temp.completion = 0;
+        cout << "please type the deadLine of the task you want to add -> ";
+        temp.deadline = getValidString();
         listVec.push_back(temp);
     }
+
     void addTask(task tempTask)
     {
         listVec.push_back(tempTask);
     }
-    void removeTask(int ind)
+
+    void removeTask(int index)
     {
-        listVec.erase(listVec.begin() + (ind - 1));
+        int vectorSize = listVec.size();
+
+        if (vectorSize == 0)
+        {
+            cout << "Error! List is empty" << endl;
+            exit;
+        }
+        else if (index > vectorSize)
+        {
+            cout << "Error! Index is out of bounds" << endl;
+            exit;
+        }
+        else
+        {
+            listVec.erase(listVec.begin() + (index - 1));
+        }
     }
-    void markTask(int index, bool setCompletionMark)
+
+    void markTask(int index)
     {
-        listVec[index].setCompletion(setCompletionMark);
+        int vectorSize = listVec.size();
+        if (vectorSize == 0)
+        {
+            cout << "Error! List is empty" << endl;
+            exit;
+        }
+        else if (index > vectorSize)
+        {
+            cout << "Error! Index is out of bounds" << endl;
+            exit;
+        }
+        else
+        {
+            listVec[index - 1].toggleCompletion();
+        }
     }
+
+    void editTask(int index)
+    {
+        cout << "please type the new contents of the task you want to edit:- ";
+        string newContents = getValidString();
+        int vectorSize = listVec.size();
+
+        if (vectorSize == 0)
+        {
+            cout << "Error! List is empty" << endl;
+            exit;
+        }
+        else if (index > vectorSize)
+        {
+            cout << "Error! Index is out of bounds" << endl;
+            exit;
+        }
+        else
+        {
+            listVec[index - 1].setContents(newContents);
+        }
+    }
+
     void viewList()
     {
-        cout << "-----------------------------" << endl;
+        cout << "---------------" << listName << "---------------" << endl;
         if (listVec.size() == 0)
         {
             cout << "Nothing to show! list is empty" << endl;
         }
         for (int i = 0; i < listVec.size(); i++)
         {
+            cout << i + 1 << ": ";
             listVec[i].viewTask();
             cout << endl;
         }
-        cout << "-----------------------------" << endl;
-    }
-};
-
-struct CLI
-{
-    taskList mainList;
-
-    bool checkSaveFile(string fileName)
-    {
-        ifstream readFile;
-        readFile.open(fileName);
-        string temp;
-        getline(readFile, temp);
-        return !(temp.empty());
+        cout << "---------------" << string(listName.size(), '-') << "---------------" << endl;
     }
 
     string serialize(task tempTask)
     {
-        string x;
-        string tempString = tempTask.getContents();
-        x = to_string(tempString.size()) + ':' + tempString + ':' + to_string(tempTask.getCompletion());
-        return x;
+        return tempTask.contents + ":" + to_string(tempTask.completion) + ":" + tempTask.deadline;
     }
-
-    taskList loadList(bool listExists)
+    task deSerialize(string tempString)
     {
-        taskList tempList;
-        if (listExists)
-        {
-            for (int i = 1; i <= getNumberOfLines("list.txt"); i++)
-            {
-                tempList.addTask(parse("list.txt", i));
-            }
-        }
-        return tempList;
-    }
+        task tempTask;
 
-    void saveList(taskList list)
-    {
-        ofstream wrf("list.txt");
-        int vecSize = list.listVec.size();
-        for (int i = 0; i < vecSize; i++)
-        {
-            wrf << serialize(list.listVec[i]) << endl;
-        }
-    }
+        tempTask.contents = splitString(tempString, ':')[0];
+        tempTask.completion = stoi(splitString(tempString, ':')[1]);
+        tempTask.deadline = splitString(tempString, ':')[2];
 
-    task parse(string fileName, int lineIndex)
-    {
-        ifstream readFile(fileName);
-        string lineString;
-
-        bool comp = 0;
-        string conts = "";
-
-        string readNumber = "";
-        int currentCharIndex = 0;
-        int totalNumberOfLines = getNumberOfLines(fileName);
-        if (lineIndex > totalNumberOfLines)
-        {
-            lineIndex = getNumberOfLines(fileName);
-        }
-        for (int i = 1; i <= lineIndex; i++) // search for the line
-        {
-            getline(readFile, lineString);
-            if (i == lineIndex)
-            {
-                while (lineString[currentCharIndex] != ':') // get number
-                {
-                    readNumber += lineString[currentCharIndex];
-                    currentCharIndex++;
-                }
-                for (int i = currentCharIndex + 1; i <= stoi(readNumber) + currentCharIndex; i++)
-                {
-                    conts += lineString[i];
-                    if (lineString[i + 1] == ':')
-                    {
-                        comp = (lineString[i + 2] == '1');
-                    }
-                }
-            }
-        }
-        task tempTask(conts, comp);
         return tempTask;
     }
 
-    void commandsList()
+    void saveList()
     {
-        cout << "1->Add Task" << "\n2->Delete Task" << "\n3->Mark Task" << "\n4->Edit Task" << "\n5->View Tasks"
-             << "\n6->Clear List" << "\n\n0->Exit App" << endl;
-    }
-
-    void welcomePanel()
-    {
-        cout << "Welcome to CLI TO-DO\n";
-        cout << "Type the number of the command you want to make:-\n";
-        commandsList();
-        cout << "-->";
-        int commandNumber = checkUserInput("Invalid input! please choose a valid number from the list\n->");
-        performCommand(commandNumber);
-    }
-    void performCommand(int commandNumber)
-    {
-        string addedTaskContents;
-        int chosenIndex;
-        bool comp;
-        string x;
-        char confirm;
-
-        switch (commandNumber)
+        int vectorSize = listVec.size();
+        ofstream writeListFile(listFileName);
+        if (vectorSize == 0)
         {
-        case 0:
+            writeListFile.open(listFileName, ios::trunc);
             exit;
-            break;
-        case 1:
-            cout << "please type something into your new task's contents or type \'!0\' to go back to the welcome panel\n-->";
-            addedTaskContents = getValidString("contents cant be empty!\n-->");
-            if (addedTaskContents == "!0")
-            {
-                welcomePanel();
-                break;
-            }
-            mainList.addTask(addedTaskContents);
-            welcomePanel();
-            break;
-        case 2:
-            cout << "please type the index of the task you want to remove \'0\' to go back to the welcome panel\n-->";
-            chosenIndex = stringToInt(getValidString("index cant be empty!\n-->"));
-            if (chosenIndex == 0)
-            {
-                welcomePanel();
-                break;
-            }
-            if (chosenIndex > mainList.listVec.size())
-            {
-                mainList.removeTask(mainList.listVec.size());
-                welcomePanel();
-                break;
-            }
-            mainList.removeTask(chosenIndex);
-            welcomePanel();
-            break;
-        case 3:
-            cout << "please type the index of the task you want to mark \'0\' to go back to the welcome panel\n-->";
-            chosenIndex = stringToInt(getValidString("index cant be empty!\n-->"));
-            cout << "Set the completion to-> ";
-            cin >> comp;
-            mainList.listVec[chosenIndex - 1].setCompletion(comp);
-            cin.ignore(1000, '\n');
-            welcomePanel();
-            break;
-        case 4:
-            cout << "please type the index of the task you want to edit \'0\' to go back to the welcome panel\n-->";
-            chosenIndex = stringToInt(getValidString("index cant be empty!\n-->"));
-            if (chosenIndex == 0)
-            {
-                welcomePanel();
-                break;
-            }
+        }
+        else
+        {
 
-            cout << "please type something into your edited task's contents or type \'!0\' to go back to the welcome panel\n-->";
-            addedTaskContents = getValidString("contents cant be empty!\n-->");
-            if (addedTaskContents == "!0")
+            for (int i = 0; i < vectorSize; i++)
             {
-                welcomePanel();
-                break;
+                writeListFile << serialize(listVec[i]) << endl;
             }
-            mainList.listVec[chosenIndex - 1].setContents(addedTaskContents);
-            welcomePanel();
-            break;
-        case 5:
-            mainList.viewList();
-
-            cout << endl
-                 << "press enter to go back to welcome panel";
-            getline(cin, x);
-            welcomePanel();
-            break;
-        case 6:
-            cout << "are you sure you want to clear the list? press y/n for confirmation ->";
-            cin >> confirm;
-            if (confirm == 'y' || confirm == 'Y')
-            {
-                mainList.listVec.clear();
-            }
-            cin.ignore(1000, '\n');
-            welcomePanel();
-            break;
-        default:
-            cout << "Unknown Error!\n";
-            welcomePanel();
-            break;
         }
     }
-    CLI()
+
+    void loadList()
     {
-        mainList = loadList(checkSaveFile("list.txt"));
-    }
-    ~CLI()
-    {
-        saveList(mainList);
+        string tempString;
+        vector<task> tempVec;
+        listFile.open(listFileName);
+        while (getline(listFile, tempString))
+        {
+            listVec.push_back(deSerialize(tempString));
+            if (tempString.empty())
+            {
+                exit;
+            }
+        }
     }
 };
